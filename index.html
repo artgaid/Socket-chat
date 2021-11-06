@@ -2,26 +2,42 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Socket</title>
+    <title>Socket-chat</title>
     <script src="https://cdn.socket.io/4.2.0/socket.io.min.js" integrity="sha384-PiBR5S00EtOj2Lto9Uu81cmoyZqR57XcOna1oAuVuIEjzj0wpqDVfD0JA9eXlRsj" crossorigin="anonymous"></script>
 </head>
 <body>
+<h3 id="name"></h3>
+<ul id="user-list" ></ul>
 <input id="input" type="text" autofocus>
 <button id="button">Send</button>
 <div id="messages"></div>
+
 <script>
 const socket = io('localhost:3000');
 const messageBlock = document.querySelector('#messages');
 const sendButton = document.querySelector('#button');
 const input = document.querySelector('#input');
+const name = document.querySelector('#name');
+const userList = document.querySelector('#user-list'); 
 
 socket.on('connect', () => {
     console.log('Connected!');
 });
 
+socket.on('server-name', userName => {
+    name.insertAdjacentHTML('beforeend', userName);
+})
+
+socket.on('server-online', userOnline => {
+    console.log(userOnline);
+    userList.innerHTML = userOnline.map((el) => {
+        console.log(el);
+        return `<li>${el}</li>` ;
+    }).join(" ")
+})
+
 socket.on('server-msg', data => {
-    // console.log(data);
-    messageBlock.insertAdjacentHTML('beforeend', `<div>${ data.message }</div>`)
+    messageBlock.insertAdjacentHTML('beforeend', `<div> <span>${data.userName}</span> : ${ data.message }</div>`)
 });
 
 sendButton.addEventListener('click', () => {
